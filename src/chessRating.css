@@ -1,0 +1,13 @@
+/*
+ * Created: 2016-01-23
+ * Author: Bierema Boyz Programming
+ * Copyright (c) 2016 Bierema Boyz Programming. All rights reserved.
+ * @license MIT
+ */
+
+body {
+  font-size: medium;
+}
+#warnings, #input, .loading, .error, .supportLinks {
+  margin: 8px;
+}
