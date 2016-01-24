@@ -142,6 +142,7 @@ window.onerror =
           fileParserWorker.postMessage(
             { file: files[fileType].file, tournament: fileType === 'games' });
           fileParserWorker.postMessage(event.target.result);
+          delete files[fileType].reader;
         };
       files[fileType].reader.readAsArrayBuffer(files[fileType].file);
     };

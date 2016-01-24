@@ -56,7 +56,14 @@ enabled. You should see options to browse to choose the DSVs; if not, make sure
 you are using an extracted version of the application rather than using the file
 directly out of the ZIP file.
 
-There is a known issue that occasionally causes an error when loading a new file
-in place of another. As a workaround, if you want to change the file that is
-being viewed (or see updates to it), refresh the page (or on Firefox, close the
-tab and load the page again).
+If you modify a file after loading it with the application, the application can
+retrieve the updated file, but the method varies across browsers. One option is
+to refresh the page and then re-select the files to be loaded. Alternatively,
+Internet Explorer and Firefox update the files if the user reselects them from
+the file browser field; Chrome and Edge do not do this unless the user deselects
+the modified file and then reselects it. Firefox makes it the easiest; simply
+refresh the page, and the same files will be re-loaded automatically.
+
+Since Firefox does not automatically deselect files when you refresh the page,
+if you want to deselect the rating file, you have to close the tab and open the
+page again.
