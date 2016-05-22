@@ -2,8 +2,9 @@ Chess Rating Calculator
 =======================
 
 The Chess Rating Calculator is a JavaScript application to compute ratings for
-tournament chess games, using a slight simplification of the USCF ranking
-system.
+tournament chess games, using a modified version of the USCF ranking system. The
+changes are designed to better model the strengths of young players competing
+infrequently, at an annual tournament.
 
 Compatibility
 -------------

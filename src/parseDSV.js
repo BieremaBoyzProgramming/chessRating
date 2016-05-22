@@ -10,6 +10,8 @@ bieremaBoyz.chessRatings = bieremaBoyz.chessRatings || {};
 
 bieremaBoyz.chessRatings.parseDSV =
   function() {
+    var CENTER_RATING = 1200;
+
     function asciiDecoder(buffer) {
       return String.fromCharCode.apply(null, new Uint8Array(buffer));
     }
@@ -35,10 +37,6 @@ bieremaBoyz.chessRatings.parseDSV =
           : (rating <= opponentRating - 400
               ? -1
               : (rating - opponentRating) / 400));
-    }
-
-    function standardWinningExpectancy(rating, opponentRating) {
-      return 2 / (1 + Math.pow(10, -(rating - opponentRating) / 400)) - 1;
     }
 
     onmessage = function(event) {
@@ -178,27 +176,37 @@ bieremaBoyz.chessRatings.parseDSV =
             );
           }
           var name;
+          var averageRating = 0;
+          var ratedPlayersCount = 0;
+          var ratingOffset;
+
+          for (name in games) {
+            if (
+              Object.prototype.hasOwnProperty.call(games, name)
+                && Object.prototype.hasOwnProperty.call(players, name))
+            {
+                averageRating += players[name].rating;
+                ratedPlayersCount++;
+            }
+          }
+          if (ratedPlayersCount) {
+            averageRating /= ratedPlayersCount;
+            ratingOffset = CENTER_RATING - averageRating;
+          }
+
           for (name in games) {
             if (Object.prototype.hasOwnProperty.call(games, name)) {
               if (Object.prototype.hasOwnProperty.call(players, name)) {
-                games[name].initialRating = players[name].rating;
+                games[name].initialRating = players[name].rating + ratingOffset;
                 games[name].gameCount = players[name].games;
               }
               else {
-                games[name].initialRating = 1300;
+                games[name].initialRating = CENTER_RATING;
                 games[name].gameCount = 0;
               }
               games[name].currentRating = games[name].initialRating;
               games[name].nextRating = games[name].initialRating;
-              var difference = 2569 - games[name].initialRating;
-              games[name].effectiveGames =
-                Math.min(
-                  games[name].initialRating > 2355
-                    ? 50
-                    : 50
-                        / Math.sqrt(
-                            0.662 + 0.00000739 * difference * difference),
-                  games[name].gameCount);
+              games[name].effectiveGames = games[name].gameCount / 2;
 
               var score = 0;
               games[name].forEach(
@@ -245,11 +253,11 @@ bieremaBoyz.chessRatings.parseDSV =
             }
             else if (players[name].consistent > 0) {
               adjustedInitialRating = rating - 400;
-              adjustedScore = score + games[name].gameCount;
+              adjustedScore = score + games[name].effectiveGames;
             }
             else {
               adjustedInitialRating = rating + 400;
-              adjustedScore = score - games[name].gameCount;
+              adjustedScore = score - games[name].effectiveGames;
             }
 
             if (effectiveGames > 0) {
@@ -324,7 +332,7 @@ bieremaBoyz.chessRatings.parseDSV =
               Object.prototype.hasOwnProperty.call(games, name)
                 && !players[name])
             {
-              games[name].nextRating = Math.max(specialRating(name, 1), 100);
+              games[name].nextRating = specialRating(name, 1);
             }
           }
 
@@ -337,39 +345,8 @@ bieremaBoyz.chessRatings.parseDSV =
 
             for (name in games) {
               if (Object.prototype.hasOwnProperty.call(games, name)) {
-                if (games[name].gameCount <= 8 || players[name].consistent) {
-                  games[name].nextRating =
-                    specialRating(name, games[name].effectiveGames);
-                }
-                else {
-                  var winningExpectancy = 0;
-                  var score = 0;
-                  games[name].forEach(
-                    function(game) {
-                      winningExpectancy +=
-                        standardWinningExpectancy(
-                          games[name].initialRating,
-                          games[game.opponent].currentRating);
-                      score += game.score;
-                    }
-                  );
-
-                  var k = 400 / (games[name].effectiveGames + games[name].length);
-
-                  var addition = k * (score - winningExpectancy);
-                  games[name].nextRating = games[name].initialRating + addition;
-                  if (games[name].length >= 3 && !games[name].noBonus) {
-                    var bonus =
-                      addition - 12 * Math.sqrt(Math.max(games[name].length, 4));
-                    if (bonus > 0) {
-                      games[name].nextRating += bonus;
-                    }
-                  }
-                }
-
-                if (games[name].nextRating < 100) {
-                  games[name].nextRating = 100;
-                }
+                games[name].nextRating =
+                  specialRating(name, games[name].effectiveGames);
               }
             }
           };

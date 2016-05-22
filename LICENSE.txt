@@ -1,4 +1,4 @@
-Chess Rating Calculator, v. 0.0.1.
+Chess Rating Calculator, v. 0.1.0.
 Created by Bierema Boyz Programming.
 
 The following notice applies to the Chess Rating Calculator application,
